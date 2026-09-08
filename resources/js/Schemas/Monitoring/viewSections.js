@@ -94,7 +94,7 @@ export const viewSections = [
     {
         title: 'Dados do agente',
         fields: [
-            { label: 'CPF / CNPJ', key: 'agent.cpf' },
+            { label: 'CPF / CNPJ', key: 'agent.latest_snapshot.cpf_cnpj' },
             { label: 'Área / linguagem / eixo', key: 'notice.name' },
             { label: 'Categoria de inscrição', key: 'category.name' },
             { label: 'Título do projeto', key: 'title_project' },

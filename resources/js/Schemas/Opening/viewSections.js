@@ -1,6 +1,7 @@
 import { useDate } from '@/Composables/useDate';
 import { useMask } from '@/Composables/useMask';
 import { getLegalType } from '@/Schemas/getLegalType';
+import { parseRegistrationFieldValue } from '@/Schemas/parseRegistrationFieldValue';
 
 const { getDate } = useDate();
 const { getCpfCnpj } = useMask();
@@ -15,7 +16,7 @@ export const viewSections = [
             { label: 'Área / linguagem / ciclo', key: 'notice.name' },
             { label: 'Categoria de inscrição', key: 'category.name' },
             { label: 'Título do projeto', key: 'title_project' },
-            { label: 'N° da inscrição', key: 'registration_id' },
+            { label: 'N° da inscrição', key: 'number' },
         ],
     },
     {
@@ -49,7 +50,8 @@ export const viewSections = [
         title: 'Campos adicionais',
         fields: [
             { label: 'Nome completo do proponente', key: 'agent.name' },
-            { label: 'Telefone do proponente', key: 'agent.director_phone' },
+            { label: 'Cargo do proponente', key: 'agent.director_position' },
+            { label: 'Telefone do proponente', key: 'agent.latest_snapshot.phone' },
             { label: 'CPF do proponente', compute: getCpfCnpj('agent.latest_snapshot.cpf_cnpj') },
             { label: 'E-mail do proponente', key: 'agent.latest_snapshot.email' },
             { label: 'E-mail secundário', key: 'agent.latest_snapshot.secondary_email' },
@@ -79,5 +81,22 @@ export const viewSections = [
     {
         title: 'Campos Extras e Documentos',
         fields: [{ label: 'Campos extras', key: 'extra_fields' }],
+    },
+    {
+        title: 'Ficha de Inscrição (Mapas Cultural)',
+        fields: [
+            {
+                label: 'Campos da inscrição',
+                fullWidth: true,
+                items: (project) => {
+                    const fields = project.opening?.registration_data?.fields ?? [];
+
+                    return fields.map((f) => ({
+                        label: f.titleField,
+                        value: parseRegistrationFieldValue(f.valueField),
+                    }));
+                },
+            },
+        ],
     },
 ];

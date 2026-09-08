@@ -42,6 +42,7 @@ class Opening extends Model implements Auditable
         'submitted_at',
         'concluded_at',
         'title_project',
+        'registration_data',
     ];
 
     protected $casts = [
@@ -54,7 +55,16 @@ class Opening extends Model implements Auditable
         'started_at' => 'datetime',
         'submitted_at' => 'datetime',
         'concluded_at' => 'datetime',
+        'registration_data' => 'array',
     ];
+
+    /** @var array<int, string> */
+    public array $auditTags = [];
+
+    public function generateTags(): array
+    {
+        return $this->auditTags;
+    }
 
     public function project()
     {

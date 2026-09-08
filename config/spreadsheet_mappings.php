@@ -20,6 +20,8 @@ return [
 
         'column_map' => [
             'DATA TRAMITAÇÃO FINALÍSTICA > ASJUR' => 'asjur_finalistic_processing_date',
+            'REGULARIDADE E ADIMPLÊNCIA (E-PARCERIAS) (II)' => 'report_status',
+            'DATA DE CERTIDÃO GERADA' => 'eparcerias_certificate_date',
             'NÚMERO DO TERMO' => 'term_number',
             'DATA TRAMITAÇÃO ASJUR > GAB' => 'sent_to_office_at',
             'DATA DE ASSINATURA DO TERMO PELA SECRETÁRIA' => 'data_sign_gabinete',

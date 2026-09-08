@@ -6,8 +6,11 @@ use App\Enums\AccountType;
 use App\Enums\AgentStatus;
 use App\Enums\DisabilityType;
 use App\Enums\ProfileSnapshotSource;
+use App\Enums\ReportStatus;
 use App\Enums\Role;
 use App\Jobs\LoadSpreadsheetProjectFilesJob;
+use App\Jobs\SyncOpeningRegistrationDataJob;
+use App\Models\Formalization;
 use App\Models\Notice;
 use App\Models\Opening;
 use App\Models\OpeningSupervisor;
@@ -38,8 +41,9 @@ class SpreadsheetImportService
         bool $withFiles,
         int $userId,
         ?int $fallbackNoticeId = null,
+        bool $withRegistrationData = false,
     ): ?Project {
-        return DB::transaction(function () use ($row, $withFiles, $userId, $fallbackNoticeId) {
+        return DB::transaction(function () use ($row, $withFiles, $userId, $fallbackNoticeId, $withRegistrationData) {
             $registrationUrl = trim((string) ($row['LINK FICHA DE INSCRIÇÃO'] ?? ''));
             $registrationId = $this->extractRegistrationId($registrationUrl);
 
@@ -107,11 +111,22 @@ class SpreadsheetImportService
             $supervisor = $this->resolveSupervisor($row);
 
             $this->resolveOpening($row, $project->id, $userId, $supervisor);
+            $this->resolveFormalization($row, $project->id, $userId);
 
             if ($withFiles) {
                 LoadSpreadsheetProjectFilesJob::dispatch(
                     projectId: $project->id,
                     registrationId: (int) $registrationId,
+                )
+                    ->afterCommit()
+                    ->onQueue('details');
+            }
+
+            if ($withRegistrationData) {
+                SyncOpeningRegistrationDataJob::dispatch(
+                    projectId: $project->id,
+                    registrationId: (int) $registrationId,
+                    userId: $userId,
                 )
                     ->afterCommit()
                     ->onQueue('details');
@@ -141,6 +156,7 @@ class SpreadsheetImportService
         $opening = Opening::firstOrNew(['project_id' => $projectId]);
 
         $attributes = [
+            'opening_nup' => trim((string) (Import::normalizeNup($row['N° DO PROCESSO (NUP)']) ?? '')),
             'opening_date' => $this->parseDate(trim((string) ($row['DATA ABERTURA DE PROCESSO'] ?? ''))),
             'agent_status' => $this->mapAgentStatus(trim((string) ($row['STATUS'] ?? ''))),
             'opened_by' => trim((string) ($row['RESPONSÁVEL POR ABRIR PROCESSO'] ?? '')),
@@ -213,6 +229,27 @@ class SpreadsheetImportService
         ]);
     }
 
+    private function resolveFormalization(array $row, int $projectId, int $userId): Formalization
+    {
+        $reportStatus = $this->mapReportStatus(trim((string) ($row['REGULARIDADE E ADIMPLÊNCIA (E-PARCERIAS) (I)'] ?? '')));
+        $certificateDate = $this->parseDate(trim((string) ($row['DATA DE CERTIDÃO GERADA'] ?? '')));
+
+        $record = ['created_by' => $userId];
+
+        if ($reportStatus !== null) {
+            $record['report_status'] = $reportStatus;
+        }
+
+        if ($certificateDate !== null) {
+            $record['eparcerias_certificate_date'] = $certificateDate;
+        }
+
+        return Formalization::updateOrCreate(
+            ['project_id' => $projectId],
+            $record
+        );
+    }
+
     private function extractRegistrationId(string $url): ?string
     {
         if (! $url) {
@@ -261,11 +298,13 @@ class SpreadsheetImportService
         };
     }
 
+    private function mapReportStatus(string $value): ?ReportStatus
+    {
+        return ReportStatus::tryFromLoose($value);
+    }
+
     private function parseDate(string $value): ?Carbon
     {
-        // Carbon::parse() sozinho é ambíguo para datas com barra (ex: "01/03/2026"
-        // vira 3 de janeiro em vez de 1º de março). Import::date() tenta 'd/m/Y'
-        // antes de qualquer outro formato, resolvendo a ambiguidade.
         $normalized = Import::date($value);
 
         return $normalized ? Carbon::parse($normalized) : null;
