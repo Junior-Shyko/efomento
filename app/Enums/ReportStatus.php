@@ -27,4 +27,24 @@ enum ReportStatus: string implements HasLabel
             self::IRREGULAR_E_INADIMPLENTE => 'Irregular e Inadimplente',
         };
     }
+
+    public static function tryFromLoose(mixed $value): ?self
+    {
+        if (blank($value)) {
+            return null;
+        }
+
+        $clean = mb_strtoupper(trim((string) $value));
+        $clean = preg_replace('/\s+/', ' ', $clean);
+
+        return match (true) {
+            str_contains($clean, 'SEM CADASTRO') => self::SEM_CADASTRO,
+            str_contains($clean, 'NÃO SE APLICA') || str_contains($clean, 'NAO SE APLICA') => self::NAO_APLICA,
+            str_contains($clean, 'IRREGULAR') && (str_contains($clean, 'INADIMPL') || str_contains($clean, 'INADIMPLE')) => self::IRREGULAR_E_INADIMPLENTE,
+            str_contains($clean, 'IRREGULAR') && (str_contains($clean, 'ADIMPL') || str_contains($clean, 'ADIMPLE')) => self::IRREGULAR_E_ADIMPLENTE,
+            str_contains($clean, 'REGULAR') && (str_contains($clean, 'INADIMPL') || str_contains($clean, 'INADIMPLE')) => self::REGULAR_E_INADIMPLENTE,
+            str_contains($clean, 'REGULAR') && (str_contains($clean, 'ADIMPL') || str_contains($clean, 'ADIMPLE')) => self::REGULAR_E_ADIMPLENTE,
+            default => self::tryFrom($clean),
+        };
+    }
 }
