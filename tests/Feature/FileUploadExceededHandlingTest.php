@@ -101,6 +101,28 @@ class FileUploadExceededHandlingTest extends TestCase
         $this->assertStringStartsWith('O arquivo enviado excede o limite máximo permitido de', $response->json('message'));
     }
 
+    public function test_php_ini_size_error_is_intercepted_by_middleware_on_api(): void
+    {
+        $invalidFile = new UploadedFile(
+            path: tempnam(sys_get_temp_dir(), 'test'),
+            originalName: 'large_file.pdf',
+            mimeType: 'application/pdf',
+            error: UPLOAD_ERR_INI_SIZE,
+            test: true
+        );
+
+        $response = $this->postJson('/test-upload-api', [
+            'file' => $invalidFile,
+        ]);
+
+        $response->assertStatus(413)
+            ->assertJson([
+                'code' => 'FileUploadExceededException',
+            ]);
+
+        $this->assertStringStartsWith('O arquivo enviado excede o limite máximo permitido de', $response->json('message'));
+    }
+
     public function test_valid_upload_passes_normally(): void
     {
         $user = User::factory()->create();

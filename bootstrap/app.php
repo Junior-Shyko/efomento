@@ -29,6 +29,10 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        $middleware->api(append: [
+            CheckUploadLimits::class,
+        ]);
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);
