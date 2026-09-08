@@ -30,6 +30,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable pcov
 
 COPY opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
