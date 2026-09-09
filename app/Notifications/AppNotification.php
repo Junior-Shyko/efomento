@@ -19,7 +19,7 @@ class AppNotification extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     public function toArray($notifiable): array

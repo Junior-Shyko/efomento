@@ -90,6 +90,7 @@ Isso inicia automaticamente:
 | efomento-app           | PHP-FPM com OPcache + caches Laravel          | 9000 (interno) |
 | efomento-vite          | Vite dev server com HMR                       | 5173           |
 | efomento-nginx         | Proxy reverso                                 | 8080           |
+| efomento-reverb        | Servidor WebSocket para notificações          | 8081           |
 | efomento-queue         | Worker de filas (high/medium/details/default) | —              |
 | efomento-queue-files   | Worker de filas (files)                       | —              |
 | efomento-scheduler     | Laravel scheduler                             | —              |
@@ -142,6 +143,7 @@ Depois de alterar `SEED_MODE` em um ambiente com configuracao em cache, execute
 | Serviço       | URL / Host             |
 |---------------|------------------------|
 | App           | http://localhost:8080  |
+| Reverb        | ws://localhost:8081    |
 | Vite HMR      | http://localhost:5173  |
 | PostgreSQL    | localhost:5433         |
 | Webmail       | http://localhost:8025  |

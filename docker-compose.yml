@@ -7,11 +7,20 @@ services:
         UID: ${UID}
         GID: ${GID}
     container_name: efomento-app
+    environment:
+      REVERB_HOST: reverb
+      REVERB_PORT: 8080
     volumes:
       - .:/var/www
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
     networks:
       - efomento
 
@@ -72,10 +81,15 @@ services:
         UID: ${UID}
         GID: ${GID}
     container_name: efomento-queue
+    environment:
+      REVERB_HOST: reverb
+      REVERB_PORT: 8080
     volumes:
       - .:/var/www
     depends_on:
       postgres:
+        condition: service_healthy
+      reverb:
         condition: service_healthy
     command:
       [
@@ -83,6 +97,31 @@ services:
         "-c",
         "php artisan queue:work --queue=high,medium,details,default --sleep=1 --tries=3 --timeout=240",
       ]
+    networks:
+      - efomento
+
+  reverb:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID}
+        GID: ${GID}
+    container_name: efomento-reverb
+    ports:
+      - "8081:8080"
+    volumes:
+      - .:/var/www
+    depends_on:
+      app:
+        condition: service_healthy
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 8080) ? 0 : 1);"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
     networks:
       - efomento
 

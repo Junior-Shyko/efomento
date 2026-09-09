@@ -10,33 +10,47 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 const page = usePage();
 
 const user = computed(() => page.props.auth.user);
-const notificationsCount = computed(() => page.props.allUnreadCount);
+const notificationsCount = ref(page.props.allUnreadCount ?? 0);
 const previousCount = ref(notificationsCount.value);
 
 const audio = new Audio('/sounds/notification.mp3');
+let echoConnection = null;
+
+const syncUnreadCount = () => {
+    router.reload({
+        only: ['allUnreadCount'],
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
 
 watch(notificationsCount, (newCount) => {
     if (newCount > previousCount.value) {
-        audio.play();
+        audio.play().catch(() => {});
     }
 
     previousCount.value = newCount;
 });
 
-let interval = null;
+watch(
+    () => page.props.allUnreadCount,
+    (newCount) => {
+        notificationsCount.value = newCount ?? 0;
+    }
+);
 
 onMounted(() => {
-    interval = setInterval(() => {
-        router.reload({
-            only: ['allUnreadCount'],
-            preserveState: true,
-            preserveScroll: true,
-        });
-    }, 5000);
+    window.Echo.private(`App.Models.User.${user.value.id}`).notification(() => {
+        notificationsCount.value += 1;
+    });
+
+    echoConnection = window.Echo.connector.pusher.connection;
+    echoConnection.bind('connected', syncUnreadCount);
 });
 
 onUnmounted(() => {
-    clearInterval(interval);
+    echoConnection?.unbind('connected', syncUnreadCount);
+    window.Echo.leave(`App.Models.User.${user.value.id}`);
 });
 </script>
 
