@@ -2,6 +2,7 @@ import { ref, computed } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { useSnackbar } from '@/Composables/useSnackbar';
 import { useAlert } from '@/Composables/useAlert';
+import { redirectToPhaseList } from '@/Composables/useStageAdvance';
 
 export function useLegalAnalysis(project) {
     const { showSnackbar } = useSnackbar();
@@ -72,12 +73,7 @@ export function useLegalAnalysis(project) {
                         alertTitle: 'Tramitação realizada',
                         alertMessage: 'O processo seguirá com outro setor a partir de agora.',
                         confirmText: 'Entendi',
-                        action: () => {
-                            router.visit(window.location.pathname, {
-                                preserveState: false,
-                                preserveScroll: true,
-                            });
-                        },
+                        action: () => redirectToPhaseList(project.value, 'analise_juridica'),
                     });
                 },
                 onError: (errors) => {

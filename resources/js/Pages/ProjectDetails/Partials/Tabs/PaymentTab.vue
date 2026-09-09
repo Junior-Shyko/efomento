@@ -20,7 +20,7 @@ import { useDate } from '@/Composables/useDate';
 import { useSnackbar } from '@/Composables/useSnackbar';
 import { useAlert } from '@/Composables/useAlert';
 import { useInstallmentStatus } from '@/Composables/useInstallments';
-import { useStageAdvance } from '@/Composables/useStageAdvance';
+import { useStageAdvance, redirectToPhaseList } from '@/Composables/useStageAdvance';
 
 const props = defineProps({
     project: {
@@ -356,12 +356,7 @@ const tramit = async () => {
 
                     confirmText: 'Entendi',
 
-                    action: () => {
-                        router.visit(window.location.pathname, {
-                            preserveState: false,
-                            preserveScroll: true,
-                        });
-                    },
+                    action: () => redirectToPhaseList(props.project, STAGE_SLUG),
                 });
             },
 

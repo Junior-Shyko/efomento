@@ -17,7 +17,7 @@ import { useSnackbar } from '@/Composables/useSnackbar';
 import { useAlert } from '@/Composables/useAlert';
 import { sanitizeExternalUrl } from '@/Composables/useExternalLink';
 import { useAuth } from '@/Composables/useAuth';
-import { useStageAdvance } from '@/Composables/useStageAdvance';
+import { useStageAdvance, redirectToPhaseList } from '@/Composables/useStageAdvance';
 
 const props = defineProps({
     project: { type: Object, required: true },
@@ -130,12 +130,7 @@ const tramit = () => {
                     alertTitle: 'Tramitação realizada',
                     alertMessage: 'O processo seguirá com outro setor a partir de agora.',
                     confirmText: 'Entendi',
-                    action: () => {
-                        router.visit(window.location.pathname, {
-                            preserveState: false,
-                            preserveScroll: true,
-                        });
-                    },
+                    action: () => redirectToPhaseList(props.project, STAGE_SLUG),
                 });
             },
             onError: (errors) => {
