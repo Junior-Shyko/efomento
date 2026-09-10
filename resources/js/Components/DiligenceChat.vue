@@ -201,8 +201,9 @@ onMounted(async () => {
                 Você não tem permissão para enviar mensagens nesta etapa.
             </p>
             <p v-else-if="!toEmail" class="text-xs text-red-600">O agente cultural não possui e-mail cadastrado.</p>
-            <p v-else-if="plainBody.length > 0 && plainBody.length < MIN_BODY_LENGTH" class="text-xs text-gray-500">
-                A mensagem deve ter pelo menos {{ MIN_BODY_LENGTH }} caracteres.
+            <p v-else-if="plainBody.length < 20 && plainBody.length < MIN_BODY_LENGTH" class="text-black font-bold">
+                Para enviar, digite um número mínimo de {{ MIN_BODY_LENGTH }} caracteres. ({{ plainBody.length }} /
+                {{ MIN_BODY_LENGTH }})
             </p>
             <span v-else />
 
