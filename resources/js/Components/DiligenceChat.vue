@@ -202,7 +202,8 @@ onMounted(async () => {
             </p>
             <p v-else-if="!toEmail" class="text-xs text-red-600">O agente cultural não possui e-mail cadastrado.</p>
             <p v-else-if="plainBody.length < 20 && plainBody.length < MIN_BODY_LENGTH" class="text-black font-bold">
-                Para enviar, digite um número mínimo de {{ MIN_BODY_LENGTH }} caracteres.
+                Para enviar, digite um número mínimo de {{ MIN_BODY_LENGTH }} caracteres. ({{ plainBody.length }} /
+                {{ MIN_BODY_LENGTH }})
             </p>
             <span v-else />
 
