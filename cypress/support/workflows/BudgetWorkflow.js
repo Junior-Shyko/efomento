@@ -2,6 +2,7 @@ import BudgetTab from '../../pages/project/budget/BudgetTab.js';
 import Notice from '../../pages/notice/NoticePage.js';
 import Project from '../../pages/project/ProjectPage.js';
 import Tramit from '../../pages/project/processTramit/ProcessTramit.js';
+import ReturnProcess from '../../pages/project/returnProcess/ReturnProcess.js';
 
 class BudgetWorkflows {
     accessBudgetOpinionTab() {
@@ -32,6 +33,11 @@ class BudgetWorkflows {
         this.accessBudgetOpinionTab({ notice, project });
         BudgetTab.fillRequiredFieldsBudgetOpninion(notice.quotaNumber, notice.installmentAmount);
         Tramit.tramit();
+    }
+
+    returnProjectToFormalizationPhase({ notice, project, devolutionMotiveText }) {
+        this.accessBudgetOpinionTab({ notice, project });
+        ReturnProcess.retunProcesss(devolutionMotiveText);
     }
 }
 

@@ -9,45 +9,73 @@ describe('Budget', () => {
         cy.fixture('projects').as('project');
     });
 
-    it('should create budget order', function () {
-        // Arrange
-        cy.loginByRole('budgetary');
+    describe('Generate Documents', () => {
+        it('should create budget order', function () {
+            // Arrange
+            cy.loginByRole('budgetary');
 
-        // Act
-        BudgetWorkflow.createBudgetOpinion({
-            notice: this.notice,
-            project: this.project,
-            phase: PHASES.BUDGET,
-            documentType: DOCUMENTS.budgetOrder,
-        });
+            // Act
+            BudgetWorkflow.createBudgetOpinion({
+                notice: this.notice,
+                project: this.project,
+                phase: PHASES.BUDGET,
+                documentType: DOCUMENTS.budgetOrder,
+            });
 
-        // Assert
-        ProjectWorkflow.validateDocumentCreated({
-            project: this.project,
-            documentType: DOCUMENTS.budgetOrder,
+            // Assert
+            ProjectWorkflow.validateDocumentCreated({
+                project: this.project,
+                documentType: DOCUMENTS.budgetOrder,
+            });
         });
     });
 
-    it('should process project to payment phase', function () {
-        // Arrange
-        cy.loginByRole('budgetary');
+    describe('Process and Return Project', () => {
+        it('should process project to payment phase', function () {
+            // Arrange
+            cy.loginByRole('budgetary');
 
-        //act
-        ProjectWorkflow.accessProjectByNup({
-            notice: this.notice,
-            project: this.project,
+            //act
+            ProjectWorkflow.accessProjectByNup({
+                notice: this.notice,
+                project: this.project,
+            });
+
+            BudgetWorkflow.processProjecToPaymentPhase({
+                notice: this.notice,
+                project: this.project,
+            });
+
+            // Assert
+            ProjectWorkflow.validateProjectPhase({
+                notice: this.notice,
+                project: this.project,
+                phase: PHASES.PAYMENT,
+            });
         });
 
-        BudgetWorkflow.processProjecToPaymentPhase({
-            notice: this.notice,
-            project: this.project,
-        });
+        it('should return project to formalization phase', function () {
+            // Assert
+            cy.loginByRole('budgetary');
 
-        // Assert
-        ProjectWorkflow.validateProjectPhase({
-            notice: this.notice,
-            project: this.project,
-            phase: PHASES.PAYMENT,
+            //act
+            ProjectWorkflow.accessProjectByNup({
+                notice: this.notice,
+                project: this.project,
+            });
+
+            BudgetWorkflow.returnProjectToFormalizationPhase({
+                notice: this.notice,
+                project: this.project,
+                documentType: DOCUMENTS.devolutionMotive,
+            });
+
+            // Assert
+            ProjectWorkflow.validateProjectPhase({
+                notice: this.notice,
+                project: this.project,
+                phase: PHASES.FORMALIZATION,
+            });
         });
     });
 });
