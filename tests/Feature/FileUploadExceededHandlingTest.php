@@ -55,7 +55,7 @@ class FileUploadExceededHandlingTest extends TestCase
         $this->assertStringStartsWith('O arquivo enviado excede o limite máximo permitido de', $response->json('message'));
     }
 
-    public function test_post_too_large_exception_redirects_back_with_error_on_web_request(): void
+    public function test_post_too_large_exception_redirects_back_with_error_when_session_exists(): void
     {
         $user = User::factory()->create();
 
@@ -65,6 +65,25 @@ class FileUploadExceededHandlingTest extends TestCase
 
         $response->assertRedirect('/previous-url');
         $response->assertSessionHasErrors(['message']);
+    }
+
+    public function test_post_too_large_middleware_returns_413_when_content_length_exceeds_limit(): void
+    {
+        $maxBytes = FileUploadExceededException::determineMaxUploadBytes();
+        $exceededBytes = ($maxBytes > 0 ? $maxBytes : 8 * 1024 * 1024) + 1024 * 1024;
+
+        $response = $this->call(
+            method: 'POST',
+            uri: '/test-upload-web',
+            server: ['CONTENT_LENGTH' => $exceededBytes]
+        );
+
+        $response->assertStatus(413)
+            ->assertJson([
+                'code' => 'FileUploadExceededException',
+            ]);
+
+        $this->assertStringStartsWith('O arquivo enviado excede o limite máximo permitido de', $response->json('message'));
     }
 
     public function test_php_ini_size_error_is_intercepted_by_middleware_on_web(): void

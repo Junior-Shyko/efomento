@@ -48,7 +48,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (PostTooLargeException $e, Request $request) {
             $uploadException = FileUploadExceededException::fromIniLimits(previous: $e);
 
-            if ($request->expectsJson() && ! $request->header('X-Inertia')) {
+            if ($request->expectsJson() || ! $request->hasSession()) {
                 return response()->json([
                     'message' => $uploadException->getMessage(),
                     'code' => class_basename($uploadException),
