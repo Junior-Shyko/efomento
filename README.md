@@ -148,6 +148,8 @@ Depois de alterar `SEED_MODE` em um ambiente com configuracao em cache, execute
 | PostgreSQL    | localhost:5433         |
 | Webmail       | http://localhost:8025  |
 
+Configuração do WebSocket em produção: [Reverb com HTTPS](docs/reverb-production.md).
+
 ## Arquitetura
 
 ### Duas camadas de interface

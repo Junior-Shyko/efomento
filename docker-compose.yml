@@ -10,6 +10,7 @@ services:
     environment:
       REVERB_HOST: reverb
       REVERB_PORT: 8080
+      REVERB_SCHEME: http
     volumes:
       - .:/var/www
     depends_on:
@@ -84,6 +85,7 @@ services:
     environment:
       REVERB_HOST: reverb
       REVERB_PORT: 8080
+      REVERB_SCHEME: http
     volumes:
       - .:/var/www
     depends_on:
