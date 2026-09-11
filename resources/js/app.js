@@ -1,6 +1,6 @@
 import '../css/app.css';
 import './bootstrap';
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { createVuetify } from 'vuetify';
@@ -16,6 +16,24 @@ import '@fontsource/source-sans-3/400.css';
 import '@fontsource/source-sans-3/700.css';
 import permission from '@/Directives/permission';
 import tinymce from 'tinymce';
+import { useSnackbar } from '@/Composables/useSnackbar';
+
+const { showSnackbar } = useSnackbar();
+
+let maxUploadSizeMb = 10;
+
+router.on('invalid', (event) => {
+    const response = event.detail.response;
+
+    if (response?.status === 413) {
+        event.preventDefault();
+
+        const message =
+            response.data?.message || `O arquivo enviado excede o limite máximo permitido de ${maxUploadSizeMb}MB.`;
+
+        showSnackbar(message, 'error');
+    }
+});
 
 tinymce.overrideDefaults({ license_key: 'gpl' });
 
@@ -91,6 +109,8 @@ createInertiaApp({
     resolve: resolvePage,
 
     setup({ el, App, props, plugin }) {
+        maxUploadSizeMb = props.initialPage.props.uploadLimits?.maxMb ?? maxUploadSizeMb;
+
         const app = createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)

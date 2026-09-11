@@ -64,6 +64,19 @@ function openPhotoPicker() {
 
 function handlePhotoChange(event) {
     const file = event.target.files?.[0] ?? null;
+
+    if (file && file.size > 10 * 1024 * 1024) {
+        showAlert({
+            alertTitle: 'Arquivo muito grande',
+            alertMessage: 'A imagem selecionada excede o limite máximo permitido de 10MB.',
+            confirmText: 'Entendi',
+        });
+        event.target.value = '';
+        form.photo = null;
+        photoPreview.value = null;
+        return;
+    }
+
     form.photo = file;
     photoPreview.value = file ? URL.createObjectURL(file) : null;
 }

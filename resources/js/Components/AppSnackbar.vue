@@ -9,7 +9,7 @@ const { snackbar, snackbarText, snackbarColor, snackbarTimeout } = useSnackbar()
         v-model="snackbar"
         :color="snackbarColor"
         :timeout="snackbarTimeout"
-        location="bottom right"
+        location="top center"
         data-cy="snack-alert"
     >
         {{ snackbarText }}
