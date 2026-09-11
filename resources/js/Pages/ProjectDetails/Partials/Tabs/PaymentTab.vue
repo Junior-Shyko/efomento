@@ -355,13 +355,6 @@ const tramit = async () => {
                     alertMessage: 'O processo seguirá com outro setor a partir de agora.',
 
                     confirmText: 'Entendi',
-
-                    action: () => {
-                        router.visit(window.location.pathname, {
-                            preserveState: false,
-                            preserveScroll: true,
-                        });
-                    },
                 });
             },
 

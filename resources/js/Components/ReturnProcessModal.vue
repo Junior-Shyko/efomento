@@ -1,6 +1,6 @@
 <script setup>
 import { computed, watch } from 'vue';
-import { router, useForm, usePage } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { useAlert } from '@/Composables/useAlert';
 import AppTextEditor from '@/Components/AppTextEditor.vue';
 
@@ -23,13 +23,6 @@ const isOpen = computed({
 const form = useForm({
     reason: '',
 });
-
-function reloadPage() {
-    router.visit(window.location.pathname, {
-        preserveState: false,
-        preserveScroll: true,
-    });
-}
 
 function close() {
     form.reset();
@@ -59,7 +52,6 @@ function submitReturn() {
                 alertTitle: 'Devolução realizada',
                 alertMessage: 'O processo foi devolvido aos responsáveis!',
                 confirmText: 'Entendi',
-                action: reloadPage,
             });
         },
 
