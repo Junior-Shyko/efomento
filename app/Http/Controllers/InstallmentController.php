@@ -24,7 +24,7 @@ class InstallmentController extends Controller
             if ($result['updated'] === 0) {
                 return back()->with(
                     'error',
-                    'Nenhuma parcela foi atualizada. Verifique se os projetos possuem orçamento e parcela pendente de pagamento.'
+                    'Um problema ocorreu e os dados de pagamento não foram atualizados. Verifique se as parcelas foram incluídas nos projetos que você deseja informar os pagamentos e suba sua planilha novamente.'
                 );
             }
 
@@ -44,7 +44,7 @@ class InstallmentController extends Controller
 
             return back()->with(
                 'error',
-                'Ocorreu um erro inesperado ao processar a planilha. Tente novamente ou contate o suporte.'
+                'Um problema ocorreu e os dados de pagamento não foram atualizados. Verifique se as parcelas foram incluídas nos projetos que você deseja informar os pagamentos e suba sua planilha novamente.'
             );
         }
     }
