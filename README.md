@@ -148,6 +148,16 @@ Depois de alterar `SEED_MODE` em um ambiente com configuracao em cache, execute
 | PostgreSQL    | localhost:5433         |
 | Webmail       | http://localhost:8025  |
 
+### Verificação de acesso por email
+
+O login exige senha e um código de 6 dígitos enviado ao email da conta. O código expira em 10 minutos, é de uso único e fica armazenado como hash no cache. Há limite de 5 tentativas por conta em 10 minutos e intervalo de 60 segundos entre envios. Reenviar invalida o código anterior daquela sessão; alterar email ou senha também invalida a solicitação.
+
+O envio reutiliza `config/mail.php` e as variáveis `MAIL_*` existentes, de forma síncrona, sem depender do worker da fila. Configure um mailer que entregue emails no ambiente de produção; `log` e `array` não entregam mensagens. Localmente, a estrutura Greenmail/Roundcube existente pode receber os códigos.
+
+Use cache persistente com suporte a locks (por exemplo, `database` ou `redis`), compartilhado entre instâncias, e sessões persistentes. Nenhuma migration nova é necessária. Ao publicar, atualize o build do frontend e o cache de rotas com o fluxo habitual de deploy. Sessões já abertas continuam válidas; novos logins exigem o código e cookies antigos de “lembrar de mim” não permitem entrar pela interface web.
+
+Validação automatizada: `php artisan test tests/Feature/Auth`.
+
 ## Arquitetura
 
 ### Duas camadas de interface

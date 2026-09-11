@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\LoginCodeController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -15,6 +16,11 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    Route::get('login/code', [LoginCodeController::class, 'show'])->name('two-factor.show');
+    Route::post('login/code', [LoginCodeController::class, 'verify'])->middleware('throttle:10,1')->name('two-factor.verify');
+    Route::post('login/code/resend', [LoginCodeController::class, 'resend'])->middleware('throttle:5,1')->name('two-factor.resend');
+    Route::post('login/code/cancel', [LoginCodeController::class, 'cancel'])->name('two-factor.cancel');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
