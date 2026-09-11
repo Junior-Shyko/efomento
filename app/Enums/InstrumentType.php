@@ -12,6 +12,7 @@ enum InstrumentType: string
     case PREMIACAO = 'PREMIAÇÃO';
     case AQUISICAO_CONTRATO = 'AQUISIÇÃO/CONTRATO';
     case PATROCINIO_CONTRATO = 'PATROCÍNIO/CONTRATO';
+    case BOLSA_CULTURAL = 'TERMO DE BOLSA CULTURAL';
 
     public static function values(): array
     {

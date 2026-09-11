@@ -447,13 +447,19 @@ const permissionMessage = computed(() => {
                                         />
                                     </FormField>
 
-                                    <FormField label="Número do termo" required :error="errors.term_number">
+                                    <FormField label="Número do termo" :error="errors.term_number">
                                         <TextField
                                             v-model="form.term_number"
-                                            label="Insira aqui o número do termo"
+                                            label="Gerado automaticamente"
+                                            disabled
+                                            readonly
                                             :error="errors.term_number"
                                             data-cy="term-number-input"
                                         />
+                                        <p class="text-xs text-gray-500">
+                                            * O número do termo é gerado automaticamente pelo sistema após a criação do
+                                            Termo de Execução Cultural.
+                                        </p>
                                     </FormField>
                                 </div>
                             </template>

@@ -2,11 +2,16 @@
 
 namespace App\Services\Documents;
 
+use App\Enums\InstrumentType;
 use App\Models\BudgetAllocation;
 use App\Models\Document;
+use App\Models\Formalization;
 use App\Models\Notice;
 use App\Models\Project;
 use App\Services\BudgetAllocationResolver;
+use App\Services\InstrumentSequenceService;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class DocumentPlaceholderResolver
 {
@@ -18,10 +23,12 @@ class DocumentPlaceholderResolver
         'project.budgets.installments',
         'project.category',
         'project.budgets.installments.budgetAllocation',
+        'project.formalizations',
     ];
 
     public function __construct(
         private readonly BudgetAllocationResolver $budgetAllocationResolver,
+        private readonly InstrumentSequenceService $sequenceService,
     ) {}
 
     public function prepare(Document $document): Document
@@ -44,6 +51,9 @@ class DocumentPlaceholderResolver
         $body = (string) $document->body;
         // Budget-opinion content uses the current installment, while notice-level documents
         // fall back to the notice's latest allocation for every allocation placeholder.
+
+        $termNumber = $this->resolveTermNumber($document, $body);
+
         $budgetAllocation = str_contains($body, '[budget_allocation_data]') || ! $document->project
             ? $this->budgetAllocationResolver->resolveForBudgetOpinion($document->project, $notice)
             : $this->budgetAllocationResolver->resolve($document->project);
@@ -73,6 +83,7 @@ class DocumentPlaceholderResolver
             '[budget_allocation_nup]' => $notice?->budget_allocation_nup ?? '',
             '[creditor_registration_nup]' => $notice?->creditor_registration_nup ?? '',
             '[project_category]' => $document->project?->category?->name ?? '',
+            '[term_number]' => $termNumber,
         ];
 
         $body = str_replace(array_keys($replacements), array_values($replacements), $body);
@@ -194,5 +205,60 @@ class DocumentPlaceholderResolver
         }
 
         return $code.' – '.$macroregion;
+    }
+
+    private function resolveTermNumber(Document $document, string $body): string
+    {
+        $project = $document->project;
+
+        if (! $project) {
+            return '';
+        }
+
+        // Valida se o documento requer a geração do número, seja pela fase ou pela tag
+        $phase = $document->phase instanceof \BackedEnum ? $document->phase->value : $document->phase;
+        $isFormalizationPhase = $phase === 'formalization';
+        $hasPlaceholder = str_contains($body, '[term_number]');
+
+        if (! $isFormalizationPhase && ! $hasPlaceholder) {
+            $formalization = $project->formalizations instanceof Collection
+                ? $project->formalizations->first()
+                : $project->formalizations;
+
+            return $formalization?->term_number ?? '';
+        }
+
+        // Transação atômica bloqueando o projeto para evitar condição de corrida
+        return DB::transaction(function () use ($project) {
+            $lockedProject = Project::where('id', $project->id)->lockForUpdate()->first();
+
+            // Consulta direto no banco respeitando o lock
+            $formalization = $lockedProject->formalizations()->first();
+
+            if ($formalization && ! empty($formalization->term_number)) {
+                return $formalization->term_number;
+            }
+
+            $notice = $lockedProject->notice;
+            $instrumentTypeString = $notice?->instrument_type;
+
+            $instrumentType = $instrumentTypeString
+                ? InstrumentType::tryFrom($instrumentTypeString)
+                : InstrumentType::EXECUCAO_CULTURAL;
+
+            if (! $formalization) {
+                $formalization = Formalization::create([
+                    'project_id' => $lockedProject->id,
+                ]);
+            }
+
+            $termNumber = $this->sequenceService->generateNextTermNumber($instrumentType);
+
+            $formalization->update([
+                'term_number' => $termNumber,
+            ]);
+
+            return $termNumber;
+        });
     }
 }

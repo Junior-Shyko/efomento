@@ -61,7 +61,7 @@ class NoticeController extends Controller
      */
     public function update(NoticeUpdateRequest $request, Notice $notice)
     {
-        $notice->update($request->validated());
+        $this->noticeService->update($notice, $request->validated());
 
         return redirect()
             ->back()

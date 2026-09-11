@@ -18,7 +18,7 @@ const form = useForm({
 });
 
 const { showSnackbar } = useSnackbar();
-const { canManageNotices } = usePermissions();
+const { canManageNotices, isSuperAdmin } = usePermissions();
 const { maskProcessNumber } = useMask();
 
 const showAll = ref(false);
@@ -69,7 +69,7 @@ const saveAll = () => {
             <div v-show="showAll" class="mt-2 space-y-1 transition-all duration-200 ease-in-out">
                 <EditableField
                     v-model="form.instrument_type"
-                    :disabled="!canManageNotices"
+                    :disabled="!isSuperAdmin"
                     label="Tipo de Instrumento:"
                     type="select"
                     :items="instrumentTypes"

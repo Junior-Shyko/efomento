@@ -63,6 +63,7 @@ const placeHoldersDocsSchema = [
     { label: 'N. Dotação Orçamentária', value: 'budget_allocation_nup' },
     { label: 'N. Cad. Credor', value: 'creditor_registration_nup' },
     { label: 'Categ. do Projeto', value: 'project_category' },
+    { label: 'Número do Termo', value: 'term_number' },
 ];
 
 const installmentPlaceHoldersDocsSchema = [
