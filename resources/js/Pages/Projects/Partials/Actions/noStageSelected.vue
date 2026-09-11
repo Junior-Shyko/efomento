@@ -204,6 +204,13 @@ async function handleBudgetAllocationUpload(event) {
         return;
     }
 
+    if (file.size > 10 * 1024 * 1024) {
+        showSnackbar('O arquivo selecionado excede o limite máximo permitido de 10MB.', 'error');
+        event.target.value = '';
+
+        return;
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     importingBudgetAllocations.value = true;

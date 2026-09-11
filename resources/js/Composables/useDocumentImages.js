@@ -1,6 +1,8 @@
 import { ref } from 'vue';
+import { useSnackbar } from '@/Composables/useSnackbar';
 
 export function useDocumentImages() {
+    const { showSnackbar } = useSnackbar();
     const headerImages = ref([null, null, null]);
     const footerImages = ref([null, null, null]);
 
@@ -28,6 +30,12 @@ export function useDocumentImages() {
         const file = event.target.files?.[0];
 
         if (!file) return;
+
+        if (file.size > 10 * 1024 * 1024) {
+            showSnackbar('A imagem selecionada excede o limite máximo permitido de 10MB.', 'error');
+            event.target.value = '';
+            return;
+        }
 
         const image = {
             file,
