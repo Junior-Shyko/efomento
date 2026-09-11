@@ -4,4 +4,5 @@ export const PHASES = {
     FORMALIZATION: 'Formalização',
     BUDGET: 'Orçamento',
     PAYMENT: 'Pagamento',
+    MONITORING: 'Monitoramento',
 };
