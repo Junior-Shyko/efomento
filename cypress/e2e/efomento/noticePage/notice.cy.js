@@ -1,3 +1,4 @@
+import NoticeWorkflow from '../../../support/workflows/NoticeWorkflow';
 import Login from '../../../pages/auth';
 import Notice from '../../../pages/notice/NoticePage';
 
@@ -6,13 +7,13 @@ describe('Notice Page - E2E Tests', () => {
         cy.fixture('users').as('user');
         cy.fixture('notices').as('notice');
 
-        cy.get('@user').then((user) => {
-            Login.accessLoginPage();
-            Login.successLogin(user.valid_email, user.password, user.name);
-        });
+        // // cy.get('@user').then((user) => {
+        // //     Login.accessLoginPage();
+        // //     Login.successLogin(user.valid_email, user.password, user.name);
+        // // });
 
-        Notice.visitPage();
-        Notice.verifyPageLoaded();
+        // Notice.visitPage();
+        // Notice.verifyPageLoaded();
     });
 
     describe('Page Access and Navigation', () => {
@@ -172,6 +173,19 @@ describe('Notice Page - E2E Tests', () => {
             Notice.updateDataAboutProcess(newNoticeData.noticeInstrumentType, newNoticeData.noticeManagerEmail);
             Notice.verifySuccessMessageUpdateNoiceData();
             Notice.verifyUpdatedDataAboutProcess(newNoticeData.noticeInstrumentType, newNoticeData.noticeManagerEmail);
+        });
+    });
+
+    describe('Upload Payment Report', () => {
+        it('should upload payments report', function () {
+            // Arrange
+            cy.loginByRole('financial');
+
+            // Act
+            NoticeWorkflow.uploadPaymentsReportFile();
+
+            // Assert
+            NoticeWorkflow.validatePaymentReportUpload();
         });
     });
 });

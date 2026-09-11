@@ -59,6 +59,8 @@ export const elements = {
     noticeEditTextField: '[data-cy=notice-edit-textfield]',
     noticeEditTextArea: '[data-cy=notice-edit-textarea]',
     noticeEditTextSelect: '[data-cy=notice-edit-select]',
+    paymentsReportFileInput: '[data-cy=payments-report-file-input]',
+    uploadBPaymentsReportButton: '[data-cy=upload-payments-report-button]',
 
     // Alerts
     successAlert: '.v-snackbar',
