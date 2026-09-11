@@ -20,8 +20,15 @@ class DocumentUpdateRequest extends FormRequest
             return false;
         }
 
-        return ! $document->type->isBudgetOpinion()
-            || $this->user()?->hasAnyRole(Role::budgetRoles());
+        if ($document->type->isBudgetOpinion()) {
+            return $this->user()?->hasAnyRole(Role::budgetRoles()) ?? false;
+        }
+
+        if ($document->type->isJuridicalReference()) {
+            return $this->user()?->hasAnyRole(Role::legalAnalysisRoles()) ?? false;
+        }
+
+        return true;
     }
 
     public function rules(): array
@@ -35,7 +42,7 @@ class DocumentUpdateRequest extends FormRequest
             'images.*.path' => [
                 'required_with:images',
                 'string',
-                'regex:/\Adocuments\/[A-Za-z0-9_-]+\.(?:gif|jpe?g|png)\z/i',
+                'regex:/\Adocuments\/[A-Za-z0-9_-]+\.(?:gif|jpe?g|png|webp)\z/i',
             ],
         ];
     }

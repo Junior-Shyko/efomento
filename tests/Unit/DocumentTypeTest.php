@@ -19,6 +19,7 @@ class DocumentTypeTest extends TestCase
             DocumentType::DP->value => 'DP',
             DocumentType::DO->value => 'DO',
             DocumentType::CI->value => 'CI',
+            DocumentType::JR->value => 'JR',
         ];
 
         foreach (DocumentType::cases() as $type) {
@@ -37,6 +38,7 @@ class DocumentTypeTest extends TestCase
             DocumentType::DP->value => 'Despacho de Pagamento',
             DocumentType::DO->value => 'Despacho Orçamentário',
             DocumentType::CI->value => 'Comunicação Interna',
+            DocumentType::JR->value => 'Parecer Jurídico Referencial',
         ];
 
         foreach (DocumentType::cases() as $type) {
@@ -54,6 +56,22 @@ class DocumentTypeTest extends TestCase
         $this->assertSame(DocumentPhase::BUDGET, DocumentType::PF->phase());
         $this->assertSame(DocumentPhase::BUDGET, DocumentType::DO->phase());
         $this->assertSame(DocumentPhase::PAYMENT, DocumentType::DP->phase());
+        $this->assertSame(DocumentPhase::JURIDICAL, DocumentType::JR->phase());
+    }
+
+    public function test_is_notice_level_identifies_pi_and_jr(): void
+    {
+        $this->assertTrue(DocumentType::PI->isNoticeLevel());
+        $this->assertTrue(DocumentType::JR->isNoticeLevel());
+        $this->assertFalse(DocumentType::PF->isNoticeLevel());
+        $this->assertFalse(DocumentType::PJ->isNoticeLevel());
+    }
+
+    public function test_is_juridical_reference_identifies_jr(): void
+    {
+        $this->assertTrue(DocumentType::JR->isJuridicalReference());
+        $this->assertFalse(DocumentType::PJ->isJuridicalReference());
+        $this->assertFalse(DocumentType::PI->isJuridicalReference());
     }
 
     public function test_required_for_formalization_advance_returns_tc_et_pj(): void

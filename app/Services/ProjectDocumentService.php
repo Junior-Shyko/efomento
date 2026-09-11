@@ -28,8 +28,8 @@ class ProjectDocumentService
         string $headerLayout = 'none',
         string $footerLayout = 'none',
     ): void {
-        if ($type !== DocumentType::PI) {
-            throw new BusinessRuleException('Apenas o parecer orçamentário inicial pode ser vinculado diretamente ao edital.');
+        if (! $type->isNoticeLevel()) {
+            throw new BusinessRuleException('Este tipo de documento não pode ser vinculado diretamente ao edital.');
         }
 
         DB::transaction(function () use (
