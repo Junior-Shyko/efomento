@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 
 class InstallmentController extends Controller
 {
+    private const IMPORT_ERROR_MESSAGE = 'Um problema ocorreu e os dados de pagamento não foram atualizados. Verifique se as parcelas foram incluídas nos projetos que você deseja informar os pagamentos e suba sua planilha novamente.';
+
     public function import(
         InstallmentImportRequest $request,
         InstallmentImportService $service
@@ -24,7 +26,7 @@ class InstallmentController extends Controller
             if ($result['updated'] === 0) {
                 return back()->with(
                     'error',
-                    'Nenhuma parcela foi atualizada. Verifique se os projetos possuem orçamento e parcela pendente de pagamento.'
+                    self::IMPORT_ERROR_MESSAGE
                 );
             }
 
@@ -44,7 +46,7 @@ class InstallmentController extends Controller
 
             return back()->with(
                 'error',
-                'Ocorreu um erro inesperado ao processar a planilha. Tente novamente ou contate o suporte.'
+                self::IMPORT_ERROR_MESSAGE
             );
         }
     }
