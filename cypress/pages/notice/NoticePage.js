@@ -236,6 +236,27 @@ class Notice {
                 expect(text.trim()).to.eq(newManagerEmail);
             });
     }
+
+    clickUploadPaymentsReportButton() {
+        cy.get(el.uploadBPaymentsReportButton)
+            .should('be.visible')
+            .and('not.be.disabled')
+            .contains('Subir relatório de pagamentos');
+    }
+
+    uploadPaymentsReport() {
+        cy.get(el.paymentsReportFileInput).selectFile('cypress/fixtures/documents/payments-report.csv', {
+            force: true,
+        });
+    }
+
+    displaySuccessMessagePaymentReportUploaded() {
+        cy.get(el.successAlert, { timeout: 20000 })
+            .contains(
+                'Importação concluída. 1 projeto(s) tiveram parcela(s) atualizada(s) com sucesso. 18 projeto(s) foram ignorados por não possuírem orçamento, parcela cadastrada ou parcela pendente de pagamento.'
+            )
+            .should('be.visible');
+    }
 }
 
 export default new Notice();

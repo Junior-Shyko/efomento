@@ -253,6 +253,7 @@ async function handleFileUpload(event) {
                     type="file"
                     accept=".xlsx,.xls,.csv"
                     class="hidden"
+                    data-cy="payments-report-file-input"
                     @change="handleFileUpload"
                 />
                 <v-btn
