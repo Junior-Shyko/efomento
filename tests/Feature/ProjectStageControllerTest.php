@@ -138,6 +138,10 @@ class ProjectStageControllerTest extends TestCase
 
         $this->actingAs($user)
             ->patch(route('projects.stages.advance', [$project, $stage]))
+            ->assertRedirect(route('notices.projects', [
+                'notice' => $project->notice_id,
+                'phase' => ProjectStageSlug::FORMALIZACAO->value,
+            ]))
             ->assertSessionHas('success', 'Processo tramitado com sucesso!');
 
         $this->assertEquals(ProjectStageStatus::APROVADO, $stage->fresh()->status);
@@ -160,6 +164,10 @@ class ProjectStageControllerTest extends TestCase
 
         $this->actingAs($user)
             ->patch(route('projects.stages.advance', [$project, $stage]))
+            ->assertRedirect(route('notices.projects', [
+                'notice' => $project->notice_id,
+                'phase' => ProjectStageSlug::ABERTURA->value,
+            ]))
             ->assertSessionHas('success');
 
         $this->assertEquals(ProjectStageStatus::APROVADO, $stage->fresh()->status);
@@ -320,6 +328,10 @@ class ProjectStageControllerTest extends TestCase
 
         $this->actingAs($principal)
             ->patch(route('projects.stages.advance', [$project, $stage]))
+            ->assertRedirect(route('notices.projects', [
+                'notice' => $project->notice_id,
+                'phase' => ProjectStageSlug::MONITORAMENTO->value,
+            ]))
             ->assertSessionHas('success', 'Processo tramitado com sucesso!');
 
         $this->assertEquals(ProjectStageStatus::APROVADO, $stage->fresh()->status);
@@ -339,6 +351,10 @@ class ProjectStageControllerTest extends TestCase
             ->post(route('projects.stages.return', [$project, $stage]), [
                 'reason' => 'Documentação incompleta, favor revisar.',
             ])
+            ->assertRedirect(route('notices.projects', [
+                'notice' => $project->notice_id,
+                'phase' => ProjectStageSlug::FORMALIZACAO->value,
+            ]))
             ->assertSessionHas('success', 'O processo foi devolvido aos responsáveis!');
 
         $this->assertEquals(ProjectStageStatus::REJEITADO, $stage->fresh()->status);

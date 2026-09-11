@@ -29,7 +29,10 @@ class ProjectStageController extends Controller
 
         $this->notificationService->notifyStageAdvanced($stage, $nextStage, $request->user());
 
-        return back()->with('success', 'Processo tramitado com sucesso!');
+        return redirect()->route('notices.projects', [
+            'notice' => $project->notice_id,
+            'phase' => $stage->slug->value,
+        ])->with('success', 'Processo tramitado com sucesso!');
     }
 
     public function requestNextInstallment(Request $request, Project $project)
@@ -58,7 +61,10 @@ class ProjectStageController extends Controller
                 $request->user()
             );
 
-            return back()->with('success', 'O processo foi devolvido aos responsáveis!');
+            return redirect()->route('notices.projects', [
+                'notice' => $project->notice_id,
+                'phase' => $stage->slug->value,
+            ])->with('success', 'O processo foi devolvido aos responsáveis!');
         } catch (AppException $e) {
             if ($e->shouldReport()) {
                 report($e);
