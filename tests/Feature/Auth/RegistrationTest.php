@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Mail\LoginCodeMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -19,6 +21,7 @@ class RegistrationTest extends TestCase
 
     public function test_user_created_by_admin_can_authenticate(): void
     {
+        Mail::fake();
         $user = User::factory()->create();
 
         $response = $this->post('/login', [
@@ -26,7 +29,10 @@ class RegistrationTest extends TestCase
             'password' => 'password',
         ]);
 
+        $this->assertGuest();
+        $response->assertRedirect(route('two-factor.show'));
+        $code = Mail::sent(LoginCodeMail::class)->first()->code;
+        $this->post(route('two-factor.verify'), ['code' => $code])->assertRedirect('/editais');
         $this->assertAuthenticatedAs($user);
-        $response->assertRedirect(route('notices.index', absolute: false));
     }
 }
