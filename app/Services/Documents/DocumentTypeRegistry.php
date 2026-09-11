@@ -29,6 +29,11 @@ class DocumentTypeRegistry
             'requires_sign' => true,
             'requires_legal' => true,
         ],
+        'jr+juridical' => [
+            'label' => 'Parecer Jurídico Referencial',
+            'requires_sign' => true,
+            'requires_legal' => true,
+        ],
         'pi+budget' => [
             'label' => 'Parecer Orçamentário Inicial',
             'requires_sign' => true,

@@ -59,6 +59,7 @@ class DocumentTest extends TestCase
         $this->assertSame('pf', DocumentType::PF->value);
         $this->assertSame('do', DocumentType::DO->value);
         $this->assertSame('dp', DocumentType::DP->value);
+        $this->assertSame('jr', DocumentType::JR->value);
 
         $this->assertSame('draft', DocumentStatus::DRAFT->value);
         $this->assertSame('pending_signature', DocumentStatus::PENDING_SIGNATURE->value);
@@ -167,6 +168,12 @@ class DocumentTest extends TestCase
         $this->assertSame('Despacho de Pagamento', $result['label']);
         $this->assertFalse($result['requires_sign']);
         $this->assertFalse($result['requires_legal']);
+
+        $result = $registry->resolve(DocumentType::JR, DocumentPhase::JURIDICAL);
+
+        $this->assertSame('Parecer Jurídico Referencial', $result['label']);
+        $this->assertTrue($result['requires_sign']);
+        $this->assertTrue($result['requires_legal']);
     }
 
     public function test_registry_throws_on_invalid_combination(): void

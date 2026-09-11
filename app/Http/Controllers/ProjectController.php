@@ -67,7 +67,7 @@ class ProjectController extends Controller
 
         $noticeDocuments = $notice->documents()
             ->whereNull('project_id')
-            ->where('type', DocumentType::PI)
+            ->whereIn('type', [DocumentType::PI, DocumentType::JR])
             ->with(['images', 'notice'])
             ->get()
             ->each(fn ($document) => $this->placeholderResolver->prepare($document));
@@ -200,11 +200,11 @@ class ProjectController extends Controller
     public function createDocument(Request $request, ProjectDocumentService $service)
     {
         $data = $request->validate([
-            'type' => 'required|in:ci,tc,pj,et,pi,pf,do,dp',
+            'type' => 'required|in:ci,tc,pj,et,pi,pf,do,dp,jr',
 
-            'notice_id' => 'required_if:type,pi|nullable|exists:notices,id',
+            'notice_id' => 'required_if:type,pi,jr|nullable|exists:notices,id',
 
-            'selected_projects' => 'required_unless:type,pi|array|min:1',
+            'selected_projects' => 'required_unless:type,pi,jr|array|min:1',
             'selected_projects.*' => 'exists:projects,id',
 
             'content' => 'required|string',
@@ -229,7 +229,11 @@ class ProjectController extends Controller
             abort_unless($request->user()->hasAnyRole(Role::budgetRoles()), 403);
         }
 
-        if ($type === DocumentType::PI) {
+        if ($type->isJuridicalReference()) {
+            abort_unless($request->user()->hasAnyRole(Role::legalAnalysisRoles()), 403);
+        }
+
+        if ($type->isNoticeLevel()) {
             $service->createNoticeDocument(
                 notice: Notice::findOrFail($data['notice_id']),
                 content: $data['content'],

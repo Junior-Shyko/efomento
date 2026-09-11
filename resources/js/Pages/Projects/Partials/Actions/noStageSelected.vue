@@ -43,7 +43,7 @@ const selectedProjectsList = computed(() =>
 );
 
 function isNoticeLevelDocument(type) {
-    return type === DOCUMENT_TYPES.PI;
+    return [DOCUMENT_TYPES.PI, DOCUMENT_TYPES.JR].includes(type);
 }
 
 function noticeDocument(type) {
@@ -98,14 +98,22 @@ const selectedDocuments = computed(() => {
     );
 });
 
-const budgetOpinionDocuments = computed(() =>
-    [DOCUMENT_TYPES.PI, DOCUMENT_TYPES.PF].map((type) => ({
+const noticeOpinionDocuments = computed(() => [
+    {
+        type: DOCUMENT_TYPES.JR,
+        name: documentConfigs[DOCUMENT_TYPES.JR].name,
+        createLabel: documentConfigs[DOCUMENT_TYPES.JR].titleCreate,
+        editLabel: documentConfigs[DOCUMENT_TYPES.JR].titleEdit,
+        canManage: canManageLegalAnalysis.value,
+    },
+    ...[DOCUMENT_TYPES.PI, DOCUMENT_TYPES.PF].map((type) => ({
         type,
         name: documentConfigs[type].name,
         createLabel: documentConfigs[type].titleCreate,
         editLabel: documentConfigs[type].titleEdit,
-    }))
-);
+        canManage: canManageBudget.value,
+    })),
+]);
 
 function hasDocument(type) {
     if (isNoticeLevelDocument(type)) {
@@ -115,8 +123,16 @@ function hasDocument(type) {
     return selectedProjectsList.value.some((project) => project.documents?.some((document) => document.type === type));
 }
 
+function canManageDocument(type) {
+    if (type === DOCUMENT_TYPES.JR) {
+        return canManageLegalAnalysis.value;
+    }
+
+    return canManageBudget.value;
+}
+
 function openDocumentDialog(type) {
-    if (!canManageBudget.value || (!isNoticeLevelDocument(type) && !props.selectedProjects.length)) {
+    if (!canManageDocument(type) || (!isNoticeLevelDocument(type) && !props.selectedProjects.length)) {
         return;
     }
 
@@ -133,7 +149,10 @@ async function downloadDocuments(type, format) {
         const document = noticeDocument(type);
 
         if (!document) {
-            showSnackbar('Crie o parecer orçamentário inicial antes de baixá-lo.', 'warning');
+            showSnackbar(
+                `Crie o ${documentConfigs[type]?.name?.toLowerCase() ?? 'documento'} antes de baixá-lo.`,
+                'warning'
+            );
 
             return;
         }
@@ -166,7 +185,7 @@ function openDocumentList(type) {
 }
 
 const noticeId = computed(() => props.notice?.id ?? null);
-const { canManageBudget } = usePermissions();
+const { canManageBudget, canManageLegalAnalysis } = usePermissions();
 const { showSnackbar } = useSnackbar();
 
 watch(
@@ -343,12 +362,12 @@ function openNoticeHistory() {
                     </template>
                 </div>
 
-                <div v-for="document in budgetOpinionDocuments" :key="document.type" class="flex flex-col gap-2">
+                <div v-for="document in noticeOpinionDocuments" :key="document.type" class="flex flex-col gap-2">
                     <p>{{ document.name }} ({{ document.type.toUpperCase() }})</p>
 
                     <div
                         v-permission="{
-                            condition: canManageBudget,
+                            condition: document.canManage,
                             message:
                                 'Você não tem permissão para criar ou editar este documento, contate o administrador do sistema.',
                         }"
@@ -358,7 +377,8 @@ function openNoticeHistory() {
                             variant="outlined"
                             class="w-full !shadow-none !font-bold !border-gray-300 !bg-white !text-[#2d353fFF] rounded-lg text-xs gap-6"
                             :disabled="
-                                (!isNoticeLevelDocument(document.type) && !selectedProjects.length) || !canManageBudget
+                                (!isNoticeLevelDocument(document.type) && !selectedProjects.length) ||
+                                !document.canManage
                             "
                             @click="openDocumentDialog(document.type)"
                         >
@@ -373,7 +393,8 @@ function openNoticeHistory() {
                             v-else
                             class="w-full rounded-lg px-4 py-2 text-xs !bg-[#ffcc05FF] !font-bold !text-[#2d353fFF] !shadow-none"
                             :disabled="
-                                (!isNoticeLevelDocument(document.type) && !selectedProjects.length) || !canManageBudget
+                                (!isNoticeLevelDocument(document.type) && !selectedProjects.length) ||
+                                !document.canManage
                             "
                             @click="openDocumentDialog(document.type)"
                         >

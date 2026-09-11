@@ -7,6 +7,7 @@ export const DOCUMENT_TYPES = {
     ET: 'et',
     DO: 'do',
     DP: 'dp',
+    JR: 'jr',
 };
 
 export const DOCUMENT_DOWNLOAD_FORMATS = {
@@ -153,5 +154,13 @@ export const documentConfigs = {
         titleEdit: 'Editar Despacho de Pagamento (DP)',
         save: 'dp',
         placeholders: installmentPlaceHoldersDocsSchema,
+    },
+
+    [DOCUMENT_TYPES.JR]: {
+        name: 'Parecer Jurídico Referencial',
+        titleCreate: 'Criar parecer jurídico referencial (JR)',
+        titleEdit: 'Editar parecer jurídico referencial (JR)',
+        save: 'jr',
+        placeholders: placeHoldersDocsSchema,
     },
 };

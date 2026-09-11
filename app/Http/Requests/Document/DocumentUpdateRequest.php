@@ -20,8 +20,15 @@ class DocumentUpdateRequest extends FormRequest
             return false;
         }
 
-        return ! $document->type->isBudgetOpinion()
-            || $this->user()?->hasAnyRole(Role::budgetRoles());
+        if ($document->type->isBudgetOpinion()) {
+            return $this->user()?->hasAnyRole(Role::budgetRoles()) ?? false;
+        }
+
+        if ($document->type->isJuridicalReference()) {
+            return $this->user()?->hasAnyRole(Role::legalAnalysisRoles()) ?? false;
+        }
+
+        return true;
     }
 
     public function rules(): array

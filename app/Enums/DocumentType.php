@@ -12,6 +12,7 @@ enum DocumentType: string
     case PF = 'pf';
     case DO = 'do';
     case DP = 'dp';
+    case JR = 'jr';
 
     public function label(): string
     {
@@ -24,6 +25,7 @@ enum DocumentType: string
             self::PF => 'PF',
             self::DO => 'DO',
             self::DP => 'DP',
+            self::JR => 'JR',
         };
     }
 
@@ -38,6 +40,7 @@ enum DocumentType: string
             self::PF => 'Parecer Orçamentário Final',
             self::DO => 'Despacho Orçamentário',
             self::DP => 'Despacho de Pagamento',
+            self::JR => 'Parecer Jurídico Referencial',
         };
     }
 
@@ -52,12 +55,23 @@ enum DocumentType: string
             self::PF,
             self::DO => DocumentPhase::BUDGET,
             self::DP => DocumentPhase::PAYMENT,
+            self::JR => DocumentPhase::JURIDICAL,
         };
     }
 
     public function isBudgetOpinion(): bool
     {
         return in_array($this, [self::PI, self::PF], true);
+    }
+
+    public function isNoticeLevel(): bool
+    {
+        return in_array($this, [self::PI, self::JR], true);
+    }
+
+    public function isJuridicalReference(): bool
+    {
+        return $this === self::JR;
     }
 
     public static function requiredForFormalizationAdvance(): array
