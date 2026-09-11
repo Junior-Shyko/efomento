@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\UploadLimits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Middleware;
@@ -51,6 +52,10 @@ class HandleInertiaRequests extends Middleware
                     ->unreadNotifications()
                     ->count();
             },
+            'uploadLimits' => [
+                'maxBytes' => UploadLimits::determineMaxUploadBytes(),
+                'maxMb' => UploadLimits::maxUploadMb(),
+            ],
         ];
     }
 }

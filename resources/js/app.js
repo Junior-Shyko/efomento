@@ -17,9 +17,10 @@ import '@fontsource/source-sans-3/700.css';
 import permission from '@/Directives/permission';
 import tinymce from 'tinymce';
 import { useSnackbar } from '@/Composables/useSnackbar';
-import { MAX_UPLOAD_SIZE_MB } from '@/Config/upload';
 
 const { showSnackbar } = useSnackbar();
+
+let maxUploadSizeMb = 10;
 
 router.on('invalid', (event) => {
     const response = event.detail.response;
@@ -28,7 +29,7 @@ router.on('invalid', (event) => {
         event.preventDefault();
 
         const message =
-            response.data?.message || `O arquivo enviado excede o limite máximo permitido de ${MAX_UPLOAD_SIZE_MB}MB.`;
+            response.data?.message || `O arquivo enviado excede o limite máximo permitido de ${maxUploadSizeMb}MB.`;
 
         showSnackbar(message, 'error');
     }
@@ -108,6 +109,8 @@ createInertiaApp({
     resolve: resolvePage,
 
     setup({ el, App, props, plugin }) {
+        maxUploadSizeMb = props.initialPage.props.uploadLimits?.maxMb ?? maxUploadSizeMb;
+
         const app = createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
