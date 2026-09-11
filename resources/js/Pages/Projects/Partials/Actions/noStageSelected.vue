@@ -25,6 +25,9 @@ const props = defineProps({
 
 const emit = defineEmits(['saved']);
 
+const { canManageBudget, canManageLegalAnalysis } = usePermissions();
+const { showSnackbar } = useSnackbar();
+
 const viewHistory = ref(false);
 const budgetAllocationDialog = ref(false);
 const budgetAllocationInput = ref(null);
@@ -38,6 +41,8 @@ const documentType = ref(null);
 const documentListDialog = ref(false);
 const downloadingType = ref(null);
 
+const noticeId = computed(() => props.notice?.id ?? null);
+
 const selectedProjectsList = computed(() =>
     props.projects.filter((project) => props.selectedProjects.includes(project.id))
 );
@@ -48,6 +53,14 @@ function isNoticeLevelDocument(type) {
 
 function noticeDocument(type) {
     return props.noticeDocuments.find((document) => document.type === type) ?? null;
+}
+
+function canManageDocument(type) {
+    if (type === DOCUMENT_TYPES.JR) {
+        return canManageLegalAnalysis.value;
+    }
+
+    return canManageBudget.value;
 }
 
 const selectedDocument = computed(() => {
@@ -98,22 +111,15 @@ const selectedDocuments = computed(() => {
     );
 });
 
-const noticeOpinionDocuments = computed(() => [
-    {
-        type: DOCUMENT_TYPES.JR,
-        name: documentConfigs[DOCUMENT_TYPES.JR].name,
-        createLabel: documentConfigs[DOCUMENT_TYPES.JR].titleCreate,
-        editLabel: documentConfigs[DOCUMENT_TYPES.JR].titleEdit,
-        canManage: canManageLegalAnalysis.value,
-    },
-    ...[DOCUMENT_TYPES.PI, DOCUMENT_TYPES.PF].map((type) => ({
+const noticeOpinionDocuments = computed(() =>
+    [DOCUMENT_TYPES.JR, DOCUMENT_TYPES.PI, DOCUMENT_TYPES.PF].map((type) => ({
         type,
         name: documentConfigs[type].name,
         createLabel: documentConfigs[type].titleCreate,
         editLabel: documentConfigs[type].titleEdit,
-        canManage: canManageBudget.value,
-    })),
-]);
+        canManage: canManageDocument(type),
+    }))
+);
 
 function hasDocument(type) {
     if (isNoticeLevelDocument(type)) {
@@ -121,14 +127,6 @@ function hasDocument(type) {
     }
 
     return selectedProjectsList.value.some((project) => project.documents?.some((document) => document.type === type));
-}
-
-function canManageDocument(type) {
-    if (type === DOCUMENT_TYPES.JR) {
-        return canManageLegalAnalysis.value;
-    }
-
-    return canManageBudget.value;
 }
 
 function openDocumentDialog(type) {
@@ -183,10 +181,6 @@ function openDocumentList(type) {
     documentType.value = type;
     documentListDialog.value = true;
 }
-
-const noticeId = computed(() => props.notice?.id ?? null);
-const { canManageBudget, canManageLegalAnalysis } = usePermissions();
-const { showSnackbar } = useSnackbar();
 
 watch(
     () => props.hasBudgetAllocations,

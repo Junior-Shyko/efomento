@@ -47,7 +47,7 @@ class DocumentStoreRequest extends FormRequest
             'body' => ['required', 'string'],
             'notice_id' => $noticeRules,
             'project_id' => [
-                Rule::requiredIf(fn () => ! (DocumentType::tryFrom($this->input('type'))?->isNoticeLevel() ?? false)),
+                Rule::requiredIf(fn () => ! ($type?->isNoticeLevel() ?? false)),
                 'nullable',
                 'exists:projects,id',
             ],

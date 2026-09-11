@@ -161,6 +161,6 @@ export const documentConfigs = {
         titleCreate: 'Criar parecer jurídico referencial (JR)',
         titleEdit: 'Editar parecer jurídico referencial (JR)',
         save: 'jr',
-        placeholders: placeHoldersDocsSchema,
+        placeholders: noticePlaceHoldersDocsSchema,
     },
 };
