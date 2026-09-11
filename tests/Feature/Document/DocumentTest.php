@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Document;
 
+use App\Enums\DocumentImagePosition;
+use App\Enums\DocumentImageSection;
 use App\Enums\DocumentPhase;
 use App\Enums\DocumentStatus;
 use App\Enums\DocumentType;
@@ -22,6 +24,7 @@ use App\Services\Documents\DocumentTypeRegistry;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DocumentTest extends TestCase
@@ -923,6 +926,41 @@ class DocumentTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertCount(3, $response->json('data'));
+    }
+
+    public function test_download_pdf_with_webp_image(): void
+    {
+        $image = imagecreatetruecolor(10, 10);
+        ob_start();
+        imagewebp($image);
+        $webpData = ob_get_clean();
+        imagedestroy($image);
+
+        $path = 'documents/test_header.webp';
+        Storage::disk('public')->put($path, $webpData);
+
+        $document = Document::factory()->create([
+            'notice_id' => $this->notice->id,
+            'project_id' => $this->project->id,
+            'type' => DocumentType::PI,
+            'phase' => DocumentPhase::BUDGET,
+            'body' => '<p>Documento com imagem WebP</p>',
+        ]);
+
+        $document->images()->create([
+            'section' => DocumentImageSection::HEADER,
+            'position' => DocumentImagePosition::CENTER,
+            'path' => $path,
+            'is_full_width' => false,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('documents.download', ['document' => $document->id, 'format' => 'pdf']));
+
+        $response->assertOk();
+        $this->assertSame('application/pdf', $response->headers->get('Content-Type'));
+
+        Storage::disk('public')->delete($path);
     }
 
     private function getRandomTypeAndPhase(): array

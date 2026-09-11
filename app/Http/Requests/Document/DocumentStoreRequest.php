@@ -57,7 +57,7 @@ class DocumentStoreRequest extends FormRequest
             'images.*.path' => [
                 'required_with:images',
                 'string',
-                'regex:/\Adocuments\/[A-Za-z0-9_-]+\.(?:gif|jpe?g|png)\z/i',
+                'regex:/\Adocuments\/[A-Za-z0-9_-]+\.(?:gif|jpe?g|png|webp)\z/i',
             ],
         ];
     }
